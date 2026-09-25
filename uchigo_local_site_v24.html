@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>УчиGO 1.2</title>
+<style>
+:root{--bg:#f4f7ff;--card:#fff;--text:#17213b;--muted:#68708a;--accent:#635bdb;--soft:#eeeeff;--hero1:#6c63ff;--hero2:#8e7dff}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text);transition:.25s}
+.app{max-width:1050px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-size:30px;font-weight:900;color:var(--accent)}.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{background:var(--card);padding:9px 13px;border-radius:999px;box-shadow:0 4px 16px #17213b12;font-weight:700}
+.card{background:var(--card);border-radius:24px;padding:23px;margin-top:18px;box-shadow:0 10px 30px #17213b12}
+.hero{background:linear-gradient(135deg,var(--hero1),var(--hero2));color:white}.hero h1{font-size:35px;margin:0 0 8px}.hero p{margin:0 0 18px;opacity:.92}
+button{border:0;border-radius:14px;padding:12px 17px;font-weight:800;cursor:pointer;font-size:15px;background:var(--soft);color:var(--text)}button:hover{transform:translateY(-1px)}
+.primary{background:var(--accent);color:white}.hero .primary{background:white;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.classBtn,.subject,.theme{padding:18px;text-align:left;background:var(--soft);border:2px solid transparent}.classBtn:hover,.subject:hover,.theme:hover{border-color:var(--accent)}
+.emoji{font-size:34px}.small{color:var(--muted)}.hidden{display:none}.back{margin-bottom:8px}
+.progress{height:12px;background:#e9ebf5;border-radius:99px;overflow:hidden}.bar{height:100%;background:var(--accent);width:0;transition:.3s}
+.question{font-size:25px;font-weight:900;margin:20px 0}.answers{display:grid;gap:10px}.answers button{text-align:left;background:var(--soft)}
+.feedback{min-height:28px;font-weight:800;margin:14px 0}.badge{display:inline-block;background:#fff7cf;padding:9px 12px;border-radius:14px;margin:5px;font-weight:700}
+.price{float:right;font-weight:900}.owned{color:#22834b}.themePreview{height:48px;border-radius:12px;margin-bottom:10px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.nav button{flex:1;min-width:120px}.active{background:var(--accent);color:white}
+.note{padding:12px;border-radius:14px;background:var(--soft);margin-top:12px} body.gfx-ultra button:hover{transform:translateY(-2px) scale(1.01)}
+.corner-online,.corner-version{position:fixed;z-index:50;font-size:12px;color:var(--muted);opacity:.9;background:var(--card);padding:5px 8px;border-radius:9px;box-shadow:0 3px 12px #17213b10}
+.corner-version{left:12px;bottom:10px}
+@media(max-width:650px){.corner-version{left:8px;bottom:8px}.top{padding-bottom:28px}}
+.themePreview{position:relative}
+.shop-tag{display:inline-block;margin-top:7px;padding:4px 7px;border-radius:8px;background:var(--card);font-size:11px;font-weight:800}
+.donate-card{padding:18px;text-align:left;background:var(--soft);border:2px solid transparent;border-radius:18px}
+.title-chip{display:inline-block;margin-left:8px;padding:5px 9px;border-radius:999px;background:#d00;color:#fff;font-weight:900;font-size:12px}
+.flame-chip{display:inline-block;margin-left:6px;color:#ff5a00;font-weight:900}
+
+</style>
+
+<!-- УчиGO Web Edition: standalone browser build -->
+
+<style id="uchigo-achievements-fix">
+/* Достижения: нейтральный фон и контрастный текст во всех темах */
+.achievement, .achievement-card, .achievements .card, [class*="achievement"] {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+  border-color: rgba(0,0,0,.12) !important;
+}
+.achievement *, .achievement-card *, .achievements .card *, [class*="achievement"] * {
+  color: #111827 !important;
+}
+</style>
+
+
+<style id="uchigo-restored-ui">
+/* Восстановление интерфейса */
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stats .pill{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.nav button{flex:1;min-width:120px;display:block}
+
+/* Достижения: всегда читаемый тёмный текст и нейтральная карточка */
+#achievements{
+  color:#111827 !important;
+}
+#achievements .badge{
+  display:inline-block;
+  background:#fff7cf !important;
+  color:#111827 !important;
+  border:1px solid rgba(17,24,39,.14);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-weight:800;
+  text-shadow:none;
+}
+#achievements .badge *{
+  color:#111827 !important;
+}
+
+/* На тёмной/разработческой теме карточки достижений остаются контрастными */
+body.gfx-ultra #achievements,
+body.gfx-ultra #achievements .badge{
+  color:#111827 !important;
+}
+
+@media(max-width:650px){
+  .stats{width:100%}
+  .stats .pill{flex:1;justify-content:center;min-width:0}
+  .nav button{min-width:calc(50% - 4px)}
+}
+</style>
+
+
+<style id="uchigo-achievements-readable">
+#achievements .badge{
+  background:#fff7cf !important;
+  color:#111827 !important;
+  border-color:rgba(17,24,39,.14) !important;
+}
+#achievements .badge,
+#achievements .badge span,
+#achievements .badge b,
+#achievements .badge strong{
+  color:#111827 !important;
+}
+</style>
+
+
+<style id="uchigo-xp-fix">
+.stats{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.stats .pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  box-sizing:border-box;
+  min-width:0;
+  width:auto;
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  padding:8px 11px;
+}
+.stats .pill span{min-width:0;}
+#achievements{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+#achievements .badge{
+  box-sizing:border-box;
+  max-width:100%;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  line-height:1.25;
+}
+@media(max-width:650px){
+  .stats{justify-content:flex-start;}
+  .stats .pill{flex:0 1 auto;}
+}
+</style>
+
+
+<style id="uchigo-final-ui">
+.top{position:relative;align-items:flex-start;min-width:0;padding-top:58px}
+.top>.logo{position:absolute;left:0;top:0;max-width:58%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top>.stats{margin-left:auto;justify-content:flex-end;width:100%;max-width:100%;gap:6px}
+.user-title{position:absolute;top:0;right:0;z-index:20;font-weight:900;font-size:12px;color:#ff4d4d;background:transparent;padding:4px 0;border-radius:0;box-shadow:none;max-width:44%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}.user-title[data-title="VIP"]{color:#7c3aed}.user-title[data-title="PREMIUM"]{color:#f59e0b}.user-title[data-title="🔥 Огненный"]{color:#ef4444}.user-title[data-title="🌈 Радужный"]{color:#ec4899}.user-title[data-title="⚡ Молниеносный"]{color:#eab308}.user-title[data-title="🌌 Космический"]{color:#6366f1}.user-title[data-title="🏆 Чемпион"]{color:#d97706}.user-title[data-title="💎 Легенда"]{color:#06b6d4}.user-title[data-title="ADMIN"]{color:#dc2626}
+.online-status{position:absolute;top:30px;right:0;font-size:12px;font-weight:700;white-space:nowrap;opacity:.9;max-width:38%;overflow:hidden;text-overflow:ellipsis}
+#rankCard{margin-top:14px}
+.rank-name{font-size:24px;font-weight:900;margin-bottom:4px}
+.rank-xp{font-size:18px;font-weight:800}
+.rank-next{margin-top:5px;opacity:.72;font-size:14px}
+@media(max-width:650px){
+  .top{padding-top:58px;padding-bottom:8px}
+  .top>.logo{max-width:48%;font-size:24px}
+  .user-title{top:0;right:0;max-width:44%;font-size:11px;padding:4px 7px}
+  .online-status{top:29px;right:0;max-width:48%;font-size:11px}
+  .top>.stats{justify-content:flex-start;width:100%;gap:5px}
+  .stats .pill{padding:7px 9px;font-size:12px;flex:0 1 auto}
+}
+
+.profile-title-chip{font-weight:900;margin-left:6px;background:transparent;padding:0;color:var(--accent)}
+.profile-title-chip[data-title="VIP"]{color:#7c3aed}.profile-title-chip[data-title="PREMIUM"]{color:#f59e0b}.profile-title-chip[data-title="🔥 Огненный"]{color:#ef4444}.profile-title-chip[data-title="🌈 Радужный"]{color:#ec4899}.profile-title-chip[data-title="⚡ Молниеносный"]{color:#eab308}.profile-title-chip[data-title="🌌 Космический"]{color:#6366f1}.profile-title-chip[data-title="🏆 Чемпион"]{color:#d97706}.profile-title-chip[data-title="💎 Легенда"]{color:#06b6d4}.profile-title-chip[data-title="ADMIN"]{color:#dc2626}
+</style>
+
+
+<style id="uchigo-auth">
+.auth-gate{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  box-sizing:border-box;
+  background:linear-gradient(135deg,#10162e,#27366d);
+}
+.auth-card{
+  width:min(420px,100%);
+  box-sizing:border-box;
+  padding:34px 28px;
+  border-radius:24px;
+  background:#fff;
+  color:#111827;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.28);
+}
+.auth-logo{font-size:52px;line-height:1;margin-bottom:8px}
+.auth-card h1{margin:0;font-size:38px;font-weight:900}
+.auth-card p{margin:8px 0 26px;color:#64748b}
+.auth-btn{
+  width:100%;
+  border:0;
+  border-radius:14px;
+  padding:13px 16px;
+  margin-top:10px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+.auth-primary{background:#00a8ff;color:#fff}
+.auth-secondary{background:#eef2ff;color:#111827}
+.auth-input{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  padding:13px 14px;
+  margin-top:10px;
+  font-size:16px;
+  outline:none;
+}
+.auth-input:focus{border-color:#00a8ff;box-shadow:0 0 0 3px rgba(0,168,255,.12)}
+.auth-back{
+  margin-top:14px;
+  border:0;
+  background:none;
+  color:#475569;
+  cursor:pointer;
+  font-weight:700;
+}
+.auth-error{min-height:20px;margin-top:10px;color:#dc2626;font-size:14px;font-weight:700}
+</style>
+
+
+<style id="uchigo-stats-row-fix">
+.top{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  padding-bottom:34px;
+}
+.top > .stats{
+  display:flex !important;
+  flex:0 1 auto !important;
+  width:auto !important;
+  max-width:100%;
+  flex-wrap:nowrap !important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-left:auto !important;
+}
+.top > .stats .pill{
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+}
+.online-status{
+  position:absolute !important;
+  left:0 !important;
+  right:auto !important;
+  bottom:6px !important;
+  top:auto !important;
+  white-space:nowrap;
+}
+@media(max-width:650px){
+  .top{
+    padding-bottom:34px;
+  }
+  .top > .stats{
+    margin-left:auto !important;
+    width:auto !important;
+    flex-wrap:nowrap !important;
+  }
+  .top > .stats .pill{
+    padding:7px 8px;
+    font-size:13px;
+  }
+}
+</style>
+
+
+<style id="uchigo-logout-layer-fix">
+#authGate{
+  z-index:2147483647 !important;
+  position:fixed !important;
+  inset:0 !important;
+}
+</style>
+
+
+<style id="uchigo-mobile-stats-alignment">
+/* На мобильном экране статистика начинается от левого края, как логотип. */
+@media(max-width:650px){
+  .top{
+    justify-content:flex-start !important;
+    align-items:flex-start !important;
+  }
+  .top > .stats{
+    margin-left:0 !important;
+    margin-right:0 !important;
+    justify-content:flex-start !important;
+    align-self:flex-start !important;
+    width:100% !important;
+  }
+  .top > .stats .pill{
+    flex:0 0 auto !important;
+  }
+  .online-status{
+    left:0 !important;
+    right:auto !important;
+  }
+}
+</style>
+
+
+<style id="uchigo-v9-title-fix">
+.profile-title-chip{background:transparent !important;box-shadow:none !important;border:0 !important;padding:0 6px !important;font-weight:900 !important;}
+.user-title{background:transparent !important;box-shadow:none !important;border:0 !important;}
+</style>
+
+<style id="uchigo-file-mode">
+#fileModeNotice{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:9999;padding:10px 12px;border-radius:12px;background:#fff7cf;color:#3b3200;font-size:12px;font-weight:700;box-shadow:0 4px 18px #0002}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body><div id="fileModeNotice">📱 УчиGO открыт как файл в Chrome. Все функции работают на этом устройстве. Общие аккаунты между разными телефонами требуют онлайн-сервера.</div>
+
+<div id="authGate" class="auth-gate">
+  <div class="auth-card">
+    <div class="auth-logo">🚀</div>
+    <h1>УчиGO</h1>
+    <p>Учись. Играй. Получай XP.</p>
+
+    <div id="authChoice">
+      <button class="auth-btn auth-primary" onclick="showAuthForm('register')">Зарегистрироваться</button>
+      <button class="auth-btn auth-secondary" onclick="showAuthForm('login')">Войти</button>
+    </div>
+
+    <div id="authForm" style="display:none">
+      <input id="authName" class="auth-input" type="text" placeholder="Имя пользователя" autocomplete="username">
+      <input id="authPassword" class="auth-input" type="password" placeholder="Пароль" autocomplete="current-password">
+      <div id="authContinueNotice" style="margin:10px 0;padding:10px 12px;border-radius:12px;background:#fff3cd;color:#7a5a00;font-weight:700;font-size:14px;text-align:center;">⚠️ Важно: кнопка «Продолжить» может не перекинуть вас в аккаунт сразу. Если после нажатия ничего не произошло, обновите страницу — после обновления вы войдёте в аккаунт или завершите регистрацию.</div>
+<button id="authSubmit" type="button" class="auth-btn auth-primary" onclick="return submitAuth();">Продолжить</button>
+      <button class="auth-back" onclick="showAuthChoice()">← Назад</button>
+      <div id="authError" class="auth-error"></div>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+<div class="top">
+  <div class="logo">🚀 УчиGO <span style="font-size:15px;color:var(--muted)">v1.2</span></div>
+  <div class="online-status">🟢 Онлайн: <span id="online">128</span></div>
+  <div id="userTitle" class="user-title" style="display:none"></div>
+  <div class="stats"><div class="pill">⭐ <span id="xp">0</span> XP</div>
+    <span class="pill" id="flamePill">🔥 <span id="flameDisplay">0</span> огоньков</span>
+    <div class="pill">🏆 Ур. <span id="level">1</span></div>
+  </div>
+</div>
+</div>
+<div class="corner-version">УчиGO v1.2</div>
+
+<div class="nav">
+ <button id="navHome" class="active" onclick="showPage('home')">🏠 <span data-i18n="home">Главная</span></button>
+ <button type="button" onclick="showPage('shop');renderThemes()">🎨 <span data-i18n="shop">Магазин тем</span></button>
+ <button onclick="showPage('profile')">👤 <span data-i18n="profile">Профиль</span></button>
+ <button onclick="showPage('settings')">⚙️ <span data-i18n="settings">Настройки</span></button>
+</div>
+
+<section id="home">
+ <div class="card hero">
+  <h1>Учёба — это приключение!</h1>
+  <p>Выбери класс, предмет и проходи короткие учебные квесты.</p>
+  <button class="primary" type="button" onclick="initClasses();showPage('classes')">🎓 Выбрать класс</button>
+ </div>
+ <div class="card">
+  <h2>🏆 <span data-i18n="achievements">Достижения</span></h2><section class="card" id="rankCard">
+  <h2>🏅 Ранг</h2>
+  <div id="rankDisplay"></div>
+</section>
+<div id="achievements"></div>
+ </div>
+ <div class="card">
+  <h2>💡 <span data-i18n="xpHelp">Как работает XP?</span></h2>
+  <p data-i18n="xpText">За правильный ответ ты получаешь <b>20 XP</b> и <b>+1 🔥 огонёк</b>. Огоньки можно тратить в магазине на титулы.</p>
+ </div>
+</section>
+
+<section id="classes" class="hidden">
+ <div class="card"><button class="back" onclick="showPage('home')">← Назад</button><h2>🎓 Выбери класс</h2><div class="grid" id="classesGrid"></div></div>
+</section>
+
+<section id="subjects" class="hidden">
+ <div class="card"><button class="back" onclick="showPage('classes')">← <span data-i18n="back">К классам</span></button><h2 id="classTitle"></h2><p class="small" data-i18n="subjects">Предметы этого класса</p><div class="grid" id="subjectsGrid"></div></div>
+</section>
+
+<section id="quiz" class="hidden">
+ <div class="card">
+  <button class="back" onclick="showPage('subjects')">← К предметам</button>
+  <h2 id="subjectTitle"></h2><div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="small" id="counter"></div><div class="question" id="question"></div>
+  <div class="answers" id="answers"></div><div class="feedback" id="feedback"></div>
+  <button id="next" class="primary hidden" onclick="nextQuestion()">Следующее →</button>
+ </div>
+</section>
+
+<section id="shop" class="hidden">
+ <div class="card">
+  <h2>🎨 Магазин тем</h2>
+  <p>Твои средства: <b>⭐ <span id="shopXp">0</span> XP</b> · <b>🔥 <span id="shopFlames">0</span></b></p>
+  <div class="grid" id="themesGrid"></div>
+ </div>
+ <div class="card" style="margin-top:14px">
+  <h2>💎 Титулы за огоньки</h2>
+  <p class="small">Покупай титулы за 🔥 огоньки. После покупки огоньки списываются, а титул сразу устанавливается.</p>
+  <div class="grid" id="donationsGrid">
+    <button class="theme" type="button" onclick="titlePurchaseInfo('VIP',500)"><div class="themePreview" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)"></div><b>VIP</b><span class="price">🔥 500</span><br><span class="small">Особый титул</span></button>
+    <button class="theme" type="button" onclick="titlePurchaseInfo('PREMIUM',1000)"><div class="themePreview" style="background:linear-gradient(135deg,#f59e0b,#f97316)"></div><b>PREMIUM</b><span class="price">🔥 1000</span><br><span class="small">Премиальный титул</span></button>
+    <button class="theme" type="button" onclick="titlePurchaseInfo('🔥 Огненный',750)"><div class="themePreview" style="background:linear-gradient(135deg,#ef4444,#f97316)"></div><b>🔥 Огненный</b><span class="price">🔥 750</span><br><span class="small">Яркий титул</span></button>
+    <button class="theme" type="button" onclick="titlePurchaseInfo('🌈 Радужный',900)"><div class="themePreview" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)"></div><b>🌈 Радужный</b><span class="price">🔥 900</span><br><span class="small">Яркий титул</span></button>
+    <button class="theme" type="button" onclick="titlePurchaseInfo('⚡ Молниеносный',1000)"><div class="themePreview" style="background:linear-gradient(135deg,#eab308,#facc15)"></div><b>⚡ Молниеносный</b><span class="price">🔥 1000</span><br><span class="small">Эпический титул</span></button>
+    <button class="theme" type="button" onclick="titlePurchaseInfo('🌌 Космический',1500)"><div class="themePreview" style="background:linear-gradient(135deg,#312e81,#7c3aed)"></div><b>🌌 Космический</b><span class="price">🔥 1500</span><br><span class="small">Редкий титул</span></button>
+    <button class="theme" type="button" onclick="titlePurchaseInfo('🏆 Чемпион',2000)"><div class="themePreview" style="background:linear-gradient(135deg,#d97706,#f59e0b)"></div><b>🏆 Чемпион</b><span class="price">🔥 2000</span><br><span class="small">Элитный титул</span></button>
+    <button class="theme" type="button" onclick="titlePurchaseInfo('💎 Легенда',3000)"><div class="themePreview" style="background:linear-gradient(135deg,#0891b2,#06b6d4)"></div><b>💎 Легенда</b><span class="price">🔥 3000</span><br><span class="small">Самый редкий титул</span></button>
+  </div>
+ </div>
+</div>
+</section>
+
+<section id="profile" class="hidden">
+  <div class="card">
+    <button class="back" onclick="showPage('home')">← <span data-i18n="back">Назад</span></button>
+    <h2>👤 <span data-i18n="profile">Профиль</span></h2>
+    <div id="profileContent"></div><div id="adminPanel"></div>
+  </div>
+</section>
+
+<section id="settings" class="hidden">
+  <div class="card">
+    <button class="back" onclick="showPage('home')">← <span data-i18n="back">Назад</span></button>
+    <h2>⚙️ <span data-i18n="settings">Настройки</span></h2>
+    <label><b>🌍 <span data-i18n="language">Язык приложения</span></b></label>
+    <select id="languageSelect" style="display:block;margin-top:10px;padding:12px;border-radius:12px;border:1px solid #ccd1e5;font-size:16px;width:100%;max-width:360px">
+      <option value="ru">Русский</option>
+      <option value="en">English</option>
+      <option value="de">Deutsch</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="it">Italiano</option>
+      <option value="pt">Português</option>
+      <option value="pl">Polski</option>
+      <option value="uk">Українська</option>
+      <option value="tr">Türkçe</option>
+      <option value="nl">Nederlands</option>
+      <option value="zh">中文</option>
+      <option value="ja">日本語</option>
+      <option value="ko">한국어</option>
+    </select>
+    <div class="note" data-i18n="languageNote">Язык интерфейса сохраняется в аккаунте на этом устройстве.</div>
+    <hr style="border:0;border-top:1px solid #e2e5f0;margin:22px 0">
+    <label><b>🧠 <span data-i18n="difficulty">Сложность заданий</span></b></label>
+    <select id="difficultySelect" style="display:block;margin-top:10px;padding:12px;border-radius:12px;border:1px solid #ccd1e5;font-size:16px;width:100%;max-width:360px">
+      <option value="easy">Лёгкая</option>
+      <option value="normal">Обычная</option>
+      <option value="hard">Сложная</option>
+    </select>
+    <div class="note" data-i18n="difficultyNote">Сложность влияет на задания и количество XP.</div>
+    <label style="display:block;margin-top:18px"><b>🔊 <span data-i18n="sound">Звуки</span></b></label>
+    <button id="soundToggle" onclick="toggleSound()" style="margin-top:10px">🔊 Включены</button>
+    <div class="note" data-i18n="soundNote">Звуки можно включать и выключать в любой момент.</div>
+  </div>
+</section>
+</div>
+
+<script>
+const themes={
+ system:{name:'Системная',cost:0,vars:{bg:'#f4f7ff',card:'#fff',text:'#17213b',muted:'#68708a',accent:'#635bdb',soft:'#eeeeff',hero1:'#6c63ff',hero2:'#8e7dff'}},
+ dark:{name:'Тёмная',cost:100,vars:{bg:'#10131c',card:'#1b2030',text:'#f1f4ff',muted:'#aab1c5',accent:'#8b82ff',soft:'#292f43',hero1:'#4f46b5',hero2:'#725cff'}},
+ ocean:{name:'Океан',cost:150,vars:{bg:'#eaf8ff',card:'#fff',text:'#123047',muted:'#587285',accent:'#087ea4',soft:'#dff4fb',hero1:'#087ea4',hero2:'#31a7c5'}},
+ forest:{name:'Лес',cost:200,vars:{bg:'#eef8f0',card:'#fff',text:'#173322',muted:'#5f7567',accent:'#31834d',soft:'#e1f2e5',hero1:'#31834d',hero2:'#5ba86e'}},
+ sunset:{name:'Закат',cost:250,vars:{bg:'#fff2ed',card:'#fff',text:'#3b2020',muted:'#806b6b',accent:'#d35b72',soft:'#ffe3df',hero1:'#d35b72',hero2:'#ee8c62'}},
+purple:{name:'Неоновый',cost:350,vars:{bg:'#f6efff',card:'#fff',text:'#29143d',muted:'#765d86',accent:'#9b4dff',soft:'#eee0ff',hero1:'#7c3aed',hero2:'#d946ef'}},
+space:{name:'Космос',cost:500,vars:{bg:'#111126',card:'#1d1d3a',text:'#f4f1ff',muted:'#aaa6c9',accent:'#8b5cf6',soft:'#29284b',hero1:'#312e81',hero2:'#7c3aed'}},
+uchigo:{name:'🚀 УчиGO — разработчик',cost:1000,vars:{bg:'#10162e',card:'#1b2550',text:'#f7f8ff',muted:'#aab7df',accent:'#00c2ff',soft:'#27366d',hero1:'#00a8ff',hero2:'#7c3aed'}}
+};
+
+const classSubjects={
+'1 класс':['Математика','Русский язык','Литературное чтение','Окружающий мир'],
+'2 класс':['Математика','Русский язык','Литературное чтение','Окружающий мир'],
+'3 класс':['Математика','Русский язык','Литературное чтение','Окружающий мир'],
+'4 класс':['Математика','Русский язык','Литературное чтение','Окружающий мир','История'],
+'5 класс':['Математика','Русский язык','Литература','История','Биология','География','Физика','Информатика','Английский язык'],
+'6 класс':['Математика','Русский язык','Литература','История','Обществознание','Биология','География','Физика','Информатика','Английский язык'],
+'7 класс':['Математика','Русский язык','Литература','История','Обществознание','Биология','География','Физика','Химия','Информатика','Английский язык'],
+'8 класс':['Математика','Русский язык','Литература','История','Обществознание','Биология','География','Физика','Химия','Информатика','Английский язык'],
+'9 класс':['Математика','Русский язык','Литература','История','Обществознание','Биология','География','Физика','Химия','Информатика','Английский язык'],
+'10 класс':['Алгебра и начала анализа','Геометрия','Русский язык','Литература','История','Обществознание','Биология','География','Физика','Химия','Информатика','Английский язык'],
+'11 класс':['Алгебра и начала анализа','Геометрия','Русский язык','Литература','История','Обществознание','Биология','География','Физика','Химия','Информатика','Английский язык']
+};
+
+const icons={'Математика':'➗','Алгебра и начала анализа':'📈','Геометрия':'📐','Русский язык':'🔤','Литературное чтение':'📖','Литература':'📚','История':'🏛️','Обществознание':'⚖️','Окружающий мир':'🌍','Биология':'🧬','Физика':'⚡','Химия':'🧪','География':'🗺️','Информатика':'💻','Английский язык':'🇬🇧'};
+
+const questions={
+'Математика':[['Сколько будет 7 × 8?',['54','56','64','48'],'56'],['Реши: 15 + 27',['32','42','52','40'],'42'],['Чему равна половина от 36?',['16','18','20','12'],'18'],['Если x + 9 = 20, чему равен x?',['9','10','11','12'],'11']],
+'Русский язык':[['Какой частью речи является слово «быстро»?',['Существительное','Наречие','Глагол','Прилагательное'],'Наречие'],['Как правильно: «прийти» или «придти»?',['Прийти','Придти','Оба варианта','Притти'],'Прийти'],['Сколько букв в русском алфавите?',['31','32','33','34'],'33']],
+'Литературное чтение':[['Кто написал «Сказку о рыбаке и рыбке»?',['А. Пушкин','Л. Толстой','Н. Носов','И. Крылов'],'А. Пушкин'],['Что такое сказка?',['Вымышленный рассказ','Расписание','Научная формула','Словарь'],'Вымышленный рассказ']],
+'Окружающий мир':[['Что нужно растениям для роста?',['Свет, вода и питательные вещества','Только снег','Только ветер','Только темнота'],'Свет, вода и питательные вещества'],['Какое животное является млекопитающим?',['Кошка','Щука','Лягушка','Бабочка'],'Кошка'],['Что является естественным спутником Земли?',['Луна','Марс','Солнце','Венера'],'Луна']],
+'Литература':[['Кто написал «Евгения Онегина»?',['А. Пушкин','Л. Толстой','Н. Гоголь','И. Тургенев'],'А. Пушкин'],['Что такое басня?',['Поучительный рассказ','Научная статья','Письмо','Расписание'],'Поучительный рассказ']],
+'История':[['Какая цивилизация построила Колизей?',['Древний Рим','Древний Египет','Майя','Викинги'],'Древний Рим'],['В каком году человек впервые высадился на Луне?',['1959','1969','1979','1989'],'1969'],['Где находилась Древняя Олимпия?',['Греция','Италия','Египет','Индия'],'Греция']],
+'Обществознание':[['Что такое Конституция?',['Основной закон государства','Расписание','Роман','Словарь'],'Основной закон государства'],['Что является обязанностью гражданина?',['Соблюдать законы','Играть','Путешествовать','Смотреть фильмы'],'Соблюдать законы']],
+'Биология':[['Какой орган растения поглощает воду из почвы?',['Лист','Цветок','Корень','Плод'],'Корень'],['Что переносят эритроциты?',['Кислород','Пищу','Кости','Гормоны'],'Кислород']],
+'Физика':[['В каких единицах измеряют силу?',['Ньютон','Паскаль','Ватт','Джоуль'],'Ньютон'],['Что измеряет термометр?',['Массу','Температуру','Скорость','Силу'],'Температуру']],
+'Химия':[['Как обозначается кислород?',['O','H','C','N'],'O'],['Что такое H₂O?',['Вода','Кислород','Водород','Углекислый газ'],'Вода']],
+'География':[['Какой океан самый большой?',['Тихий','Атлантический','Индийский','Северный Ледовитый'],'Тихий'],['Столица Франции?',['Париж','Рим','Берлин','Мадрид'],'Париж']],
+'Информатика':[['Что такое алгоритм?',['Последовательность действий для решения задачи','Вид компьютера','Игра','Файл картинки'],'Последовательность действий для решения задачи'],['Что такое браузер?',['Программа для работы с веб-страницами','Антивирус','Игра','Клавиатура'],'Программа для работы с веб-страницами']],
+'Английский язык':[['Как переводится “book”?',['Книга','Стол','Дом','Окно'],'Книга'],['Выберите правильное: “I ___ a student.”',['am','is','are','be'],'am']],
+'Алгебра и начала анализа':[['Чему равен x в уравнении 2x=10?',['2','5','10','20'],'5'],['Производная x² равна…',['x','2x','x²','2'],'2x']],
+'Геометрия':[['Сколько градусов в сумме углов треугольника?',['90°','180°','270°','360°'],'180°'],['Площадь прямоугольника 4 см × 6 см?',['10','20','24','30'],'24']]
+};
+
+const defaultState=()=>({
+  xp:0,streak:1,correct:0,themes:["system"],theme:"system",language:"ru",
+  difficulty:"normal",sound:true,
+  // История уже показанных заданий. Она хранится вместе с аккаунтом,
+  // поэтому после выхода/входа задания не начинают повторяться заново.
+  questionHistory:{},
+  title:"", flames:0,donations:0});
+let currentUser=localStorage.getItem("uchigo11_currentUser")||"";
+let state=defaultState();
+let selectedClass='',current=[],index=0,score=0;
+
+const I18N={
+ru:{profile:"Профиль",settings:"Настройки",back:"Назад",language:"Язык приложения",languageNote:"Язык интерфейса сохраняется в аккаунте на этом устройстве.",difficulty:"Сложность заданий",difficultyNote:"Сложность влияет на задания и количество XP.",sound:"Звуки",soundNote:"Звуки можно включать и выключать в любой момент.",home:"Главная",shop:"Магазин тем",achievements:"Достижения",xpHelp:"Как работает XP?",selectClass:"Выбери класс",subjects:"Предметы этого класса",miniQuest:"Мини-квест",chooseClass:"Выбрать класс",heroTitle:"Учёба — это приключение!",heroText:"Выбери класс, предмет и проходи короткие учебные квесты.",xpText:"За правильный ответ ты получаешь 20 XP. XP можно тратить в магазине на оформление приложения.",login:"Войти",register:"Зарегистрироваться",logout:"Выйти",username:"Имя пользователя",password:"Пароль",logged:"Вы вошли как",guest:"Войдите или зарегистрируйтесь, чтобы сохранять прогресс в аккаунте.",loginBtn:"Войти",registerBtn:"Создать аккаунт",accountExists:"Такой аккаунт уже существует.",wrong:"Неверное имя пользователя или пароль.",created:"Аккаунт создан! Вы вошли.",empty:"Заполните оба поля."},
+en:{profile:"Profile",settings:"Settings",back:"Back",language:"App language",languageNote:"The interface language is saved in your account on this device.",difficulty:"Task difficulty",difficultyNote:"Difficulty changes the tasks and XP amount.",sound:"Sounds",soundNote:"You can turn sounds on or off at any time.",home:"Home",shop:"Theme shop",achievements:"Achievements",xpHelp:"How does XP work?",selectClass:"Choose a class",subjects:"Subjects for this class",miniQuest:"Mini-quest",chooseClass:"Choose class",heroTitle:"Learning is an adventure!",heroText:"Choose a class and subject and complete short learning quests.",xpText:"You get 20 XP for a correct answer. XP can be spent in the theme shop.",login:"Log in",register:"Register",logout:"Log out",username:"Username",password:"Password",logged:"Logged in as",guest:"Log in or register to save your progress to your account.",loginBtn:"Log in",registerBtn:"Create account",accountExists:"This account already exists.",wrong:"Wrong username or password.",created:"Account created! You are logged in.",empty:"Fill in both fields."},
+de:{profile:"Profil",settings:"Einstellungen",back:"Zurück",language:"App-Sprache",languageNote:"Die Sprache wird in deinem Konto auf diesem Gerät gespeichert.",difficulty:"Aufgabenschwierigkeit",difficultyNote:"Die Schwierigkeit beeinflusst Aufgaben und XP.",sound:"Töne",soundNote:"Töne können jederzeit ein- oder ausgeschaltet werden.",home:"Startseite",shop:"Design-Shop",achievements:"Erfolge",xpHelp:"Wie funktioniert XP?",selectClass:"Klasse wählen",subjects:"Fächer dieser Klasse",miniQuest:"Mini-Quest",chooseClass:"Klasse auswählen",heroTitle:"Lernen ist ein Abenteuer!",heroText:"Wähle Klasse und Fach und löse kurze Lernquests.",xpText:"Für eine richtige Antwort erhältst du 20 XP. XP kannst du im Design-Shop ausgeben.",login:"Anmelden",register:"Registrieren",logout:"Abmelden",username:"Benutzername",password:"Passwort",logged:"Angemeldet als",guest:"Melde dich an oder registriere dich, um deinen Fortschritt zu speichern.",loginBtn:"Anmelden",registerBtn:"Konto erstellen",accountExists:"Dieses Konto existiert bereits.",wrong:"Falscher Benutzername oder Passwort.",created:"Konto erstellt! Du bist angemeldet.",empty:"Bitte beide Felder ausfüllen."},
+fr:{profile:"Profil",settings:"Paramètres",back:"Retour",language:"Langue de l’application",languageNote:"La langue est enregistrée dans ton compte sur cet appareil.",difficulty:"Difficulté",difficultyNote:"La difficulté modifie les exercices et les XP.",sound:"Sons",soundNote:"Les sons peuvent être activés ou désactivés à tout moment.",home:"Accueil",shop:"Boutique de thèmes",achievements:"Succès",xpHelp:"Comment fonctionne l’XP ?",selectClass:"Choisir une classe",subjects:"Matières de cette classe",miniQuest:"Mini-quête",chooseClass:"Choisir une classe",heroTitle:"Apprendre est une aventure !",heroText:"Choisis une classe et une matière pour faire de courtes quêtes.",xpText:"Tu gagnes 20 XP pour une bonne réponse. Les XP peuvent être dépensés dans la boutique.",login:"Se connecter",register:"S’inscrire",logout:"Se déconnecter",username:"Nom d’utilisateur",password:"Mot de passe",logged:"Connecté en tant que",guest:"Connecte-toi ou inscris-toi pour sauvegarder ta progression.",loginBtn:"Se connecter",registerBtn:"Créer un compte",accountExists:"Ce compte existe déjà.",wrong:"Nom d’utilisateur ou mot de passe incorrect.",created:"Compte créé ! Tu es connecté.",empty:"Remplis les deux champs."},
+es:{profile:"Perfil",settings:"Ajustes",back:"Atrás",language:"Idioma de la aplicación",languageNote:"El idioma se guarda en tu cuenta en este dispositivo.",difficulty:"Dificultad",difficultyNote:"La dificultad cambia las tareas y la cantidad de XP.",sound:"Sonidos",soundNote:"Puedes activar o desactivar los sonidos.",home:"Inicio",shop:"Tienda de temas",achievements:"Logros",xpHelp:"¿Cómo funciona la XP?",selectClass:"Elegir clase",subjects:"Asignaturas de esta clase",miniQuest:"Mini misión",chooseClass:"Elegir clase",heroTitle:"¡Aprender es una aventura!",heroText:"Elige una clase y una asignatura y completa pequeñas misiones.",xpText:"Obtienes 20 XP por cada respuesta correcta. Puedes gastar XP en la tienda.",login:"Iniciar sesión",register:"Registrarse",logout:"Cerrar sesión",username:"Usuario",password:"Contraseña",logged:"Conectado como",guest:"Inicia sesión o regístrate para guardar tu progreso.",loginBtn:"Iniciar sesión",registerBtn:"Crear cuenta",accountExists:"Esta cuenta ya existe.",wrong:"Usuario o contraseña incorrectos.",created:"¡Cuenta creada! Has iniciado sesión.",empty:"Completa ambos campos."},
+uk:{profile:"Профіль",settings:"Налаштування",back:"Назад",language:"Мова застосунку",languageNote:"Мова інтерфейсу зберігається у вашому акаунті на цьому пристрої.",difficulty:"Складність завдань",difficultyNote:"Складність впливає на завдання та кількість XP.",sound:"Звуки",soundNote:"Звуки можна вмикати та вимикати.",home:"Головна",shop:"Магазин тем",achievements:"Досягнення",xpHelp:"Як працює XP?",selectClass:"Обрати клас",subjects:"Предмети цього класу",miniQuest:"Мініквест",chooseClass:"Обрати клас",heroTitle:"Навчання — це пригода!",heroText:"Обери клас і предмет та проходь короткі навчальні квести.",xpText:"За правильну відповідь ти отримуєш 20 XP. XP можна витрачати в магазині тем.",login:"Увійти",register:"Зареєструватися",logout:"Вийти",username:"Ім’я користувача",password:"Пароль",logged:"Ви увійшли як",guest:"Увійдіть або зареєструйтеся, щоб зберігати прогрес.",loginBtn:"Увійти",registerBtn:"Створити акаунт",accountExists:"Такий акаунт уже існує.",wrong:"Неправильне ім’я користувача або пароль.",created:"Акаунт створено! Ви увійшли.",empty:"Заповніть обидва поля."}
+};
+Object.keys(I18N).forEach(k=>I18N[k]={...I18N.en,...I18N[k]});
+// v1.2: аккаунты сохраняются между перезапусками приложения.
+let accounts={};
+try{ accounts=JSON.parse(localStorage.getItem("uchigo11_accounts")||"{}"); }catch(e){ accounts={}; }
+
+function t(key){return (I18N[state.language]||I18N.en)[key]||I18N.en[key]||key;}
+function updateOnline(){
+  const el=document.getElementById("online");
+  if(!el)return;
+  const base=128;
+  const wave=Math.round(Math.sin(Date.now()/17000)*18);
+  const jitter=Math.floor(Math.random()*17)-8;
+  el.textContent=Math.max(80,base+wave+jitter);
+}
+setInterval(updateOnline,7000);
+
+function loadAccount(){
+  const saved=currentUser?accounts[currentUser]:null;
+  if(saved){
+    state={...defaultState(),...saved,questionHistory:(saved.questionHistory&&typeof saved.questionHistory==="object")?saved.questionHistory:{}};
+  }else{
+    if(currentUser){currentUser="";localStorage.removeItem("uchigo11_currentUser");}
+    let guest={};
+    try{guest=JSON.parse(localStorage.getItem("uchigo11_guest")||"{}")}catch(e){}
+    state={...defaultState(),...guest,questionHistory:(guest.questionHistory&&typeof guest.questionHistory==="object")?guest.questionHistory:{}};
+  }
+  state.difficulty=state.difficulty||"normal";
+  state.sound=state.sound!==false;
+}
+function persistAccount(){
+  if(currentUser){
+    const old=accounts[currentUser]||{};
+    accounts[currentUser]={...old,...state};
+    if(old.password) accounts[currentUser].password=old.password;
+    localStorage.setItem("uchigo11_accounts",JSON.stringify(accounts));
+  } else localStorage.setItem("uchigo11_guest",JSON.stringify(state));
+}
+
+function cssTheme(t){Object.entries(t.vars).forEach(([k,v])=>document.documentElement.style.setProperty('--'+k,v))}
+function applyTheme(){cssTheme(themes[state.theme]||themes.system)}
+function save(){persistAccount();updateUI()}
+function updateOnlineCount(){
+  const el=document.getElementById('onlineCount');
+  if(el) el.textContent='—';
+}
+function renderRank(){
+  const xp=Number(state.xp)||0;
+  let name='🌱 Новичок', need=100;
+  if(xp>=50000){name='💻 Хакер';need=null}
+  else if(xp>=10000){name='👑 Грандмастер';need=50000}
+  else if(xp>=5000){name='⚡ Эксперт';need=10000}
+  else if(xp>=1000){name='🧙 Мастер';need=5000}
+  else if(xp>=500){name='🚀 Продвинутый ученик';need=1000}
+  else if(xp>=100){name='🎓 Ученик';need=500}
+  const next=need?`До следующего ранга: ${need-xp} XP`:'Максимальный ранг достигнут!';
+  const el=document.getElementById('rankDisplay');
+  if(el)el.innerHTML=`<div class="rank-name">${name}</div><div class="rank-xp">${xp.toLocaleString('ru-RU')} XP</div><div class="rank-next">${next}</div>`;
+}
+
+window.addEventListener('storage',e=>{
+  if(e.key!=='uchigo11_accounts'||!currentUser)return;
+  try{
+    const fresh=JSON.parse(e.newValue||'{}');
+    if(fresh[currentUser]){
+      state={...defaultState(),...fresh[currentUser],questionHistory:(fresh[currentUser].questionHistory&&typeof fresh[currentUser].questionHistory==='object')?fresh[currentUser].questionHistory:{}};
+      state.difficulty=state.difficulty||'normal'; state.sound=state.sound!==false;
+      updateUI();
+    }
+  }catch(err){}
+});
+
+function updateUI(){
+  renderRank();
+ document.getElementById('xp').textContent=state.xp;document.getElementById('shopXp').textContent=state.xp; const sf=document.getElementById('shopFlames'); if(sf)sf.textContent=Number(state.flames??0); const fd=document.getElementById('flameDisplay'); if(fd)fd.textContent=Number(state.flames??0); renderUserTitle();
+ document.getElementById('level').textContent=Math.floor(state.xp/100)+1;document.getElementById('streak').textContent=state.streak;
+ let a='';
+  if(state.correct>=1)a+='<span class="badge">✨ Первый ответ</span>';
+  if(state.correct>=5)a+='<span class="badge">🎯 5 правильных</span>';
+  if(state.correct>=10)a+='<span class="badge">🔥 10 правильных</span>';
+  if(state.correct>=25)a+='<span class="badge">🏆 25 правильных</span>';
+  if(state.correct>=50)a+='<span class="badge">💎 50 правильных</span>';
+  if(state.xp>=500)a+='<span class="badge">⭐ 500 XP</span>';
+  if(state.xp>=1000)a+='<span class="badge">🚀 1 000 XP</span>';
+  if(!a)a='<span class="badge">🌱 Первое достижение впереди!</span>';
+ document.getElementById('achievements').innerHTML=a;renderThemes();updateOnlineCount();renderProfile();renderUserTitle();applyLanguage(); updateSoundButton(); const ds=document.getElementById("difficultySelect"); if(ds) ds.value=state.difficulty||"normal";
+}
+function showPage(id){
+ ['home','classes','subjects','quiz','shop','profile','settings'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));
+ if(id==='shop') renderThemes();
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+ if(id==='home')document.getElementById('navHome').classList.add('active');
+ if(id==='shop')document.querySelector('.nav button:nth-child(3)').classList.add('active');
+ if(id==='classes')document.querySelector('.nav button:nth-child(2)').classList.add('active');
+}
+function initClasses(){let box=document.getElementById('classesGrid');box.innerHTML='';Object.keys(classSubjects).forEach(c=>{let b=document.createElement('button');b.className='classBtn';b.innerHTML=`<div class="emoji">🎓</div><b>${c}</b><br><span class="small">${classSubjects[c].length} предметов</span>`;b.type='button'; b.addEventListener('click',function(e){e.preventDefault();chooseClass(c);}); box.appendChild(b)})}
+function chooseClass(c){selectedClass=c;showPage('subjects');document.getElementById('classTitle').textContent=`🎓 ${c}`;let box=document.getElementById('subjectsGrid');box.innerHTML='';classSubjects[c].forEach(s=>{let b=document.createElement('button');b.className='subject';b.innerHTML=`<div class="emoji">${icons[s]||'📘'}</div><b>${s}</b><br><span class="small">${t("miniQuest")}</span>`;b.type='button'; b.addEventListener('click',function(e){e.preventDefault();start(s);}); box.appendChild(b)})}
+
+const generators={
+  "Математика":()=>mathQuestion(),
+  "Алгебра и начала анализа":()=>mathQuestion(true),
+  "Геометрия":()=>geometryQuestion(),
+  "Русский язык":()=>randomFrom([
+    ["Какое слово является существительным?",["дом","быстро","красивый","читать"],"дом"],
+    ["Какое слово является глаголом?",["бежать","синий","стол","весело"],"бежать"],
+    ["Какое слово является прилагательным?",["зелёный","идти","река","быстро"],"зелёный"],
+    ["Как правильно написать?",["интересный","интерестный","интиресный","интерисный"],"интересный"],
+    ["Сколько гласных букв в русском алфавите?",["8","10","12","6"],"10"]
+  ]),
+  "Литературное чтение":()=>randomFrom([
+    ["Кто написал «Сказку о рыбаке и рыбке»?",["А. Пушкин","Н. Носов","Л. Толстой","И. Крылов"],"А. Пушкин"],
+    ["Что обычно есть у сказки?",["Вымышленный сюжет","Таблица умножения","Расписание","Инструкция к компьютеру"],"Вымышленный сюжет"],
+    ["Кто написал «Конёк-Горбунок»?",["П. Ершов","А. Чехов","М. Лермонтов","Н. Гоголь"],"П. Ершов"],
+    ["Что такое басня?",["Поучительный рассказ","Научная формула","Письмо","Расписание"],"Поучительный рассказ"]
+  ]),
+  "Литература":()=>randomFrom([
+    ["Кто написал «Евгения Онегина»?",["А. Пушкин","Л. Толстой","Н. Гоголь","И. Тургенев"],"А. Пушкин"],
+    ["Кто написал «Войну и мир»?",["Л. Толстой","А. Пушкин","М. Булгаков","И. Тургенев"],"Л. Толстой"],
+    ["Кто автор «Мёртвых душ»?",["Н. Гоголь","А. Чехов","Ф. Достоевский","И. Крылов"],"Н. Гоголь"],
+    ["Что такое эпитет?",["Образное определение","Вид числа","Музыкальный инструмент","Математическая формула"],"Образное определение"]
+  ]),
+  "Окружающий мир":()=>randomFrom([
+    ["Что является естественным спутником Земли?",["Луна","Марс","Солнце","Венера"],"Луна"],
+    ["Какое животное является млекопитающим?",["Кошка","Щука","Лягушка","Бабочка"],"Кошка"],
+    ["Что нужно растениям для роста?",["Свет, вода и питательные вещества","Только снег","Только ветер","Только темнота"],"Свет, вода и питательные вещества"],
+    ["В каком состоянии находится лёд?",["Твёрдом","Жидком","Газообразном","Плазменном"],"Твёрдом"]
+  ]),
+  "История":()=>randomFrom([
+    ["В каком году человек впервые высадился на Луне?",["1959","1969","1979","1989"],"1969"],
+    ["Где находилась Древняя Олимпия?",["Греция","Италия","Египет","Индия"],"Греция"],
+    ["Какая цивилизация построила Колизей?",["Древний Рим","Древний Египет","Майя","Викинги"],"Древний Рим"],
+    ["Какой город был столицей Древнего Египта в разные периоды?",["Мемфис","Париж","Рим","Лондон"],"Мемфис"]
+  ]),
+  "Обществознание":()=>randomFrom([
+    ["Что такое Конституция?",["Основной закон государства","Расписание","Роман","Словарь"],"Основной закон государства"],
+    ["Что является обязанностью гражданина?",["Соблюдать законы","Играть","Путешествовать","Смотреть фильмы"],"Соблюдать законы"],
+    ["Что такое семья?",["Группа близких людей, связанных отношениями и общим бытом","Вид государства","Школьный предмет","Компьютерная программа"],"Группа близких людей, связанных отношениями и общим бытом"],
+    ["Что называют правом?",["Возможность, гарантированная правилами и законами","Любую игру","Только школьную оценку","Погодное явление"],"Возможность, гарантированная правилами и законами"]
+  ]),
+  "Биология":()=>randomFrom([
+    ["Какой орган растения поглощает воду из почвы?",["Лист","Цветок","Корень","Плод"],"Корень"],
+    ["Что переносят эритроциты?",["Кислород","Пищу","Кости","Гормоны"],"Кислород"],
+    ["Какая часть клетки содержит наследственную информацию?",["Ядро","Вакуоль","Клеточная стенка","Цитоплазма"],"Ядро"],
+    ["Какой процесс растения используют для создания органических веществ на свету?",["Фотосинтез","Испарение","Пищеварение","Дыхание"],"Фотосинтез"]
+  ]),
+  "Физика":()=>randomFrom([
+    ["В каких единицах измеряют силу?",["Ньютон","Паскаль","Ватт","Джоуль"],"Ньютон"],
+    ["Что измеряет термометр?",["Массу","Температуру","Скорость","Силу"],"Температуру"],
+    ["В каких единицах измеряют энергию?",["Джоуль","Ньютон","Метр","Герц"],"Джоуль"],
+    ["Что происходит с телом при действии силы?",["Может измениться его движение","Оно обязательно исчезает","Оно превращается в воду","Ничего никогда не меняется"],"Может измениться его движение"]
+  ]),
+  "Химия":()=>randomFrom([
+    ["Как обозначается кислород?",["O","H","C","N"],"O"],
+    ["Что такое H₂O?",["Вода","Кислород","Водород","Углекислый газ"],"Вода"],
+    ["Как обозначается водород?",["H","O","N","Cl"],"H"],
+    ["Какой газ нужен человеку для дыхания?",["Кислород","Азот","Гелий","Неон"],"Кислород"]
+  ]),
+  "География":()=>randomFrom([
+    ["Какой океан самый большой?",["Тихий","Атлантический","Индийский","Северный Ледовитый"],"Тихий"],
+    ["Столица Франции?",["Париж","Рим","Берлин","Мадрид"],"Париж"],
+    ["Какой материк самый большой?",["Евразия","Австралия","Антарктида","Южная Америка"],"Евразия"],
+    ["Как называется линия, делящая Землю на Северное и Южное полушария?",["Экватор","Меридиан","Тропик","Полярный круг"],"Экватор"]
+  ]),
+  "Информатика":()=>randomFrom([
+    ["Что такое алгоритм?",["Последовательность действий для решения задачи","Вид компьютера","Игра","Файл картинки"],"Последовательность действий для решения задачи"],
+    ["Что такое браузер?",["Программа для работы с веб-страницами","Антивирус","Игра","Клавиатура"],"Программа для работы с веб-страницами"],
+    ["Что хранит файл?",["Данные","Только электричество","Только звук","Только экран"],"Данные"],
+    ["Что является устройством ввода?",["Клавиатура","Монитор","Колонка","Проектор"],"Клавиатура"]
+  ]),
+  "Английский язык":()=>randomFrom([
+    ["Как переводится “book”?",["Книга","Стол","Дом","Окно"],"Книга"],
+    ["Выберите правильное: “I ___ a student.”",["am","is","are","be"],"am"],
+    ["Как переводится “apple”?",["Яблоко","Апельсин","Стол","Ручка"],"Яблоко"],
+    ["Выберите правильное: “She ___ happy.”",["is","am","are","be"],"is"]
+  ])
+};
+function randomFrom(a){return a[Math.floor(Math.random()*a.length)];}
+function mathQuestion(algebra=false){
+  const d=state.difficulty||"normal", max=d==="easy"?12:d==="hard"?80:35;
+  let a=2+Math.floor(Math.random()*max), b=2+Math.floor(Math.random()*max), ans,text;
+  const type=Math.floor(Math.random()*4);
+  if(algebra){ ans=2+Math.floor(Math.random()*(d==="hard"?30:12)); const k=2+Math.floor(Math.random()*8); const c=k*ans; text=`${k}x = ${c}. Найди x.`; }
+  else if(type===0){ans=a+b;text=`${a} + ${b} = ?`;}
+  else if(type===1){if(b>a)[a,b]=[b,a];ans=a-b;text=`${a} − ${b} = ?`;}
+  else if(type===2){ans=a*b;text=`${a} × ${b} = ?`;}
+  else {ans=a;text=`${a*b} ÷ ${b} = ?`;}
+  const opts=new Set([String(ans)]); while(opts.size<4){let delta=1+Math.floor(Math.random()*Math.max(3,Math.abs(ans)/3+2)); opts.add(String(Math.max(0,ans+(Math.random()<.5?-delta:delta))));}
+  return [text,[...opts],String(ans)];
+}
+function geometryQuestion(){
+  const d=state.difficulty||"normal";
+  if(Math.random()<.5){let x=d==="hard"?5+Math.floor(Math.random()*16):2+Math.floor(Math.random()*10), y=2+Math.floor(Math.random()*10); let ans=x*y; return [`Площадь прямоугольника ${x} × ${y} см = ?`,[String(ans),String(ans+2),String(Math.max(1,ans-2)),String(ans+10)],String(ans)];}
+  return randomFrom([["Сколько градусов в сумме углов треугольника?",["90°","180°","270°","360°"],"180°"],["Сколько сторон у шестиугольника?",["5","6","7","8"],"6"],["Сколько диагоналей у квадрата?",["1","2","4","6"],"2"]]);
+}
+function questionHistoryKey(subject){
+  return `${selectedClass}::${subject}::${state.difficulty||"normal"}`;
+}
+function questionFingerprint(q){
+  return JSON.stringify([q[0],q[1],q[2]]);
+}
+function uniqueQuestionVariant(q, serial){
+  // Для статических банков меняем формулировку, порядок вариантов и номер
+  // варианта. Это не даёт одному и тому же экрану задания повториться.
+  const prefixes=[
+    "Выбери правильный ответ:",
+    "Проверь себя:",
+    "Мини-квест:",
+    "Задание:",
+    "Небольшой вопрос:",
+    "Учебная проверка:",
+    "Попробуй решить:",
+    "Вопрос для разминки:",
+    "Твой ход:",
+    "Проверь знания:"
+  ];
+  const copy=[q[0],Array.isArray(q[1])?[...q[1]]:[],q[2]];
+  copy[0]=`${prefixes[serial%prefixes.length]} ${copy[0]}  • вариант ${serial+1}`;
+  copy[1].sort(()=>Math.random()-.5);
+  return copy;
+}
+function buildQuest(subject){
+  const base=questions[subject]||[];
+  const result=[]; const used=new Set();
+  const target=state.difficulty==="hard"?8:state.difficulty==="easy"?4:6;
+  if(!state.questionHistory || typeof state.questionHistory!=="object") state.questionHistory={};
+  const hKey=questionHistoryKey(subject);
+  const history=new Set(Array.isArray(state.questionHistory[hKey])?state.questionHistory[hKey]:[]);
+  let serial=(state.questionHistory[hKey]?.length||0)+1;
+  const maxAttempts=200;
+
+  for(let i=0;i<target;i++){
+    let q=null, key="", attempts=0;
+    while(attempts++<maxAttempts){
+      const candidate=generators[subject]
+        ? generators[subject]()
+        : (base.length?base[Math.floor(Math.random()*base.length)]:null);
+      if(!candidate) break;
+      key=questionFingerprint(candidate);
+      // Для динамических генераторов ждём новую комбинацию.
+      // Для статических банков после исчерпания используем новую формулировку.
+      if(!history.has(key) && !used.has(key)){ q=candidate; break; }
+      if(base.length && !generators[subject] && attempts>Math.max(20,base.length*8)){
+        q=uniqueQuestionVariant(candidate,serial++);
+        key=questionFingerprint(q);
+        if(!history.has(key) && !used.has(key)) break;
+      }
+    }
+    if(!q){
+      // Крайний случай: уникальная формулировка с постоянным номером.
+      const fallback=base.length?base[i%base.length]:["Новое задание",["1","2","3","4"],"1"];
+      q=uniqueQuestionVariant(fallback,serial++);
+      key=questionFingerprint(q);
+    }
+    used.add(key); history.add(key); result.push(q);
+  }
+
+  // Сохраняем историю СРАЗУ при создании квеста, а не только после ответа.
+  // Поэтому даже закрытие вкладки/выход из аккаунта не сбрасывает уже выданные задания.
+  state.questionHistory[hKey]=Array.from(history);
+  try{ save(); }catch(e){ console.warn("История заданий не сохранилась:",e); }
+  return result.sort(()=>Math.random()-.5);
+}
+function start(s){
+  try{
+    if(!s) return;
+    selectedClass=selectedClass||'1 класс';
+    current=buildQuest(s);
+    if(!Array.isArray(current)||!current.length){
+      const fallbackPool=questions[s]||[];
+      current=fallbackPool.length?[fallbackPool[Math.floor(Math.random()*fallbackPool.length)]]:[["Новый учебный вопрос",["Верный вариант A","Верный вариант B","Верный вариант C","Верный вариант D"],"Верный вариант A"]];
+    }
+    index=0; score=0;
+    const title=document.getElementById('subjectTitle');
+    if(title) title.textContent=`${icons[s]||'📘'} ${s}`;
+    const next=document.getElementById('next');
+    if(next){ next.onclick=nextQuestion; next.textContent='Следующее →'; }
+    showPage('quiz');
+    showQuestion();
+  }catch(err){
+    console.error('Ошибка открытия задания:',err);
+    // Даже если сохранение истории/аккаунта дало ошибку, само задание всё равно открывается.
+    const fallbackPool=questions[s]||[];
+    current=fallbackPool.length?[fallbackPool[Math.floor(Math.random()*fallbackPool.length)]]:[["Новый учебный вопрос",["Верный вариант A","Верный вариант B","Верный вариант C","Верный вариант D"],"Верный вариант A"]];
+    index=0; score=0;
+    showPage('quiz');
+    const title=document.getElementById('subjectTitle');
+    if(title) title.textContent=`${icons[s]||'📘'} ${s}`;
+    showQuestion();
+  }
+}
+function showQuestion(){
+  const q=current[index];
+  if(!q||!Array.isArray(q)||!Array.isArray(q[1])) return;
+  document.getElementById('counter').textContent=`Вопрос ${index+1} из ${current.length}`;
+  document.getElementById('bar').style.width=(index/current.length*100)+'%';
+  document.getElementById('question').textContent=q[0];
+  document.getElementById('feedback').textContent='';
+  document.getElementById('next').classList.add('hidden');
+  const box=document.getElementById('answers'); box.innerHTML='';
+  [...q[1]].sort(()=>Math.random()-.5).forEach(a=>{const b=document.createElement('button');b.type='button';b.className='answer-option';b.textContent=String(a);b.dataset.answer=String(a);box.appendChild(b)});
+}
+function answer(a){
+  const q=current[index]; if(!q) return;
+  document.querySelectorAll('#answers button').forEach(b=>b.disabled=true);
+  const correct=String(a)===String(q[2]);
+  if(correct){score++;const xpGain=(state.difficulty||'normal')==='easy'?10:(state.difficulty||'normal')==='hard'?30:20;state.xp=(Number(state.xp)||0)+xpGain;state.correct=(Number(state.correct)||0)+1;state.flames=(Number(state.flames)||0)+1;document.getElementById('feedback').textContent=`✅ Верно! +${xpGain} XP · +1 🔥`;if(state.sound)beep(true)}else{document.getElementById('feedback').textContent=`❌ Правильный ответ: ${q[2]}`;if(state.sound)beep(false)}
+  try{save()}catch(e){console.error('Ошибка сохранения ответа:',e)}
+  document.getElementById('next').classList.remove('hidden');
+}
+(function(){const box=document.getElementById('answers');if(!box||box.dataset.bound)return;box.dataset.bound='1';box.addEventListener('click',e=>{const btn=e.target.closest('button.answer-option');if(!btn||btn.disabled)return;e.preventDefault();answer(btn.dataset.answer)})})();
+function nextQuestion(){index++;if(index>=current.length){document.getElementById('bar').style.width='100%';document.getElementById('question').textContent='Квест завершён! 🎉';document.getElementById('answers').innerHTML='';document.getElementById('feedback').textContent=`Результат: ${score}/${current.length}. Получено ${score*((state.difficulty||"normal")==="easy"?10:(state.difficulty||"normal")==="hard"?30:20)} XP.`;document.getElementById('next').textContent='К предметам';document.getElementById('next').onclick=()=>showPage('subjects');document.getElementById('next').classList.remove('hidden');return}showQuestion()}
+function renderThemes(){let box=document.getElementById('themesGrid');if(!box)return;box.innerHTML='';state.themes=Array.isArray(state.themes)?state.themes:['system'];Object.entries(themes).forEach(([id,t])=>{let owned=state.themes.includes(id);let b=document.createElement('button');b.className='theme';let v=t.vars;b.innerHTML=`<div class="themePreview" style="background:linear-gradient(135deg,${v.hero1},${v.hero2})"></div><b>${t.name}</b><span class="price">${id==='system'?'Бесплатно':owned?'Куплено':`⭐ ${t.cost}`}</span><br><span class="small">${state.theme===id?'Активна':owned?'Нажми, чтобы применить':'Купи за XP'}</span>${id==='uchigo'?'<span class="shop-tag">⭐ Тема разработчика</span>':''}`;b.onclick=()=>buyTheme(id);box.appendChild(b)})}
+function buyTheme(id){let t=themes[id];if(state.themes.includes(id)){state.theme=id;applyTheme();save();return}if(state.xp<t.cost){alert(`Нужно ещё ${t.cost-state.xp} XP.`);return}state.xp-=t.cost;state.themes.push(id);state.theme=id;applyTheme();save()}
+
+function applyLanguage(){
+  document.documentElement.lang=state.language||"ru";
+  document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=t(el.dataset.i18n));
+  const sel=document.getElementById("languageSelect"); if(sel) sel.value=state.language||"ru";
+  renderProfile();
+}
+function renderUserTitle(){
+  const el=document.getElementById('userTitle'); if(!el)return;
+  const title=state.title || (currentUser==='Qqq'&&accounts[currentUser]?.admin?'ADMIN':'');
+  el.textContent=title; el.dataset.title=title; el.style.display=title?'block':'none';
+}
+const titleList=['VIP','PREMIUM','🔥 Огненный','🌈 Радужный','⚡ Молниеносный','🌌 Космический','🏆 Чемпион','💎 Легенда'];
+
+function renderAdminPanel(){
+  const box=document.getElementById('adminPanel'); if(!box)return;
+  if(currentUser==='Qqq' && accounts[currentUser]?.admin){
+    const players=Object.keys(accounts);
+    box.innerHTML=`<div class="card" style="border:3px solid #d00"><p><b>Управление игроками</b></p><p class="small">Здесь можно установить игроку точное количество XP, выбрать титул и установить точное количество огоньков 🔥.</p>
+      <label>Твой XP</label><div style="display:flex;gap:8px;margin:8px 0 14px;flex-wrap:wrap"><input id="adminSelfXp" type="number" min="0" value="${state.xp}" style="padding:10px;border-radius:10px;border:1px solid #bbb"><button onclick="adminSetSelfXp()">Установить</button></div>
+      <label>Игрок</label><select id="adminPlayer" style="display:block;width:100%;max-width:420px;padding:10px;margin:8px 0">${players.map(u=>`<option value="${u}">${u}</option>`).join('')}</select>
+      <label>Точное количество XP игрока</label><div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap"><input id="adminGiveXp" type="number" min="0" value="100" style="padding:10px;border-radius:10px;border:1px solid #bbb"><button onclick="adminGiveXp()">Установить XP</button></div>
+      <label>Титул игрока</label><div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap"><select id="adminTitle" size="8" style="padding:10px;border-radius:10px;border:1px solid #bbb;min-width:260px;max-width:100%"><option value="">Без титула</option>${titleList.map(t=>`<option value="${t}">${t}</option>`).join('')}</select><button onclick="adminSetTitle()">Выдать титул</button></div>
+      <label>Точное количество огоньков 🔥</label><div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap"><input id="adminFlames" type="number" min="0" value="10" style="padding:10px;border-radius:10px;border:1px solid #bbb"><button onclick="adminSetFlames()">Установить</button></div>
+      <div id="adminMsg" class="feedback"></div></div>`;
+  }else box.innerHTML='';
+}
+function adminSetTitle(){
+  if(currentUser!=='Qqq'||!accounts[currentUser]?.admin)return;
+  const u=document.getElementById('adminPlayer')?.value;
+  if(!u||!accounts[u])return;
+  const title=(document.getElementById('adminTitle')?.value||'').trim();
+  accounts[u]={...accounts[u],title};
+  if(u===currentUser) state.title=title;
+  localStorage.setItem('uchigo11_accounts',JSON.stringify(accounts));
+  if(u===currentUser) save();
+  updateUI(); renderProfile(); renderAdminPanel();
+  const m=document.getElementById('adminMsg'); if(m)m.textContent=`✅ Игроку ${u} установлен титул: ${title||'без титула'}.`;
+}
+function adminSetFlames(){
+  if(currentUser!=='Qqq'||!accounts[currentUser]?.admin)return;
+  const u=document.getElementById('adminPlayer')?.value;
+  const n=Math.max(0,Math.floor(Number(document.getElementById('adminFlames')?.value||0)));
+  if(!u||!accounts[u])return;
+  accounts[u]={...accounts[u],flames:n};
+  if(u===currentUser){ state.flames=n; save(); } else { localStorage.setItem('uchigo11_accounts',JSON.stringify(accounts)); }
+  updateUI(); renderProfile(); renderAdminPanel();
+  const m=document.getElementById('adminMsg'); if(m)m.textContent=`🔥 Игроку ${u} установлено огоньков: ${n}.`;
+}
+function adminGiveFlames(){
+  if(currentUser!=='Qqq'||!accounts[currentUser]?.admin)return;
+  const u=document.getElementById('adminPlayer')?.value;
+  const add=Math.max(0,Math.floor(Number(document.getElementById('adminFlames')?.value||0)));
+  if(!u||!accounts[u])return;
+  accounts[u]={...accounts[u],flames:add};
+  if(u===currentUser){ state.flames=accounts[u].flames; save(); } else { localStorage.setItem('uchigo11_accounts',JSON.stringify(accounts)); }
+  updateUI(); renderProfile(); renderAdminPanel();
+  const m=document.getElementById('adminMsg'); if(m)m.textContent=`🔥 Игроку ${u} установлено ${add} огоньков. Предыдущее значение заменено.`;
+}
+function adminSetSelfXp(){
+  if(currentUser!=='Qqq'||!accounts[currentUser]?.admin)return;
+  const n=Math.max(0,Number(document.getElementById('adminSelfXp')?.value||0)); state.xp=Math.floor(n); save(); updateUI(); renderAdminPanel();
+}
+function adminGiveXp(){
+  if(currentUser!=='Qqq'||!accounts[currentUser]?.admin)return;
+  const u=document.getElementById('adminPlayer')?.value; const n=Math.max(0,Math.floor(Number(document.getElementById('adminGiveXp')?.value||0)));
+  if(!u||!accounts[u])return;
+  accounts[u]={...accounts[u],xp:n};
+  if(u===currentUser){ state.xp=accounts[u].xp; save(); }
+  else localStorage.setItem('uchigo11_accounts',JSON.stringify(accounts));
+  updateUI(); renderAdminPanel();
+  const m=document.getElementById('adminMsg'); if(m)m.textContent=`✅ Игроку ${u} установлено ${n} XP. Предыдущее значение заменено.`;
+}
+
+function renderProfile(){
+  const box=document.getElementById("profileContent"); if(!box)return;
+  if(currentUser){
+    const profileTitle=state.title || (currentUser==='Qqq'&&accounts[currentUser]?.admin?'ADMIN':'Без титула');
+    box.innerHTML=`<p>${t("logged")} <b>${currentUser}</b> <span class="profile-title-chip" data-title="${profileTitle}">${profileTitle}</span></p>
+      <div class="grid">
+        <div class="note">⭐ XP: <b>${state.xp}</b></div>
+        <div class="note">🔥 Огоньки: <b>${Number(state.flames??0)}</b></div>
+        <div class="note">🏆 Уровень: <b>${Math.floor(state.xp/100)+1}</b></div>
+        <div class="note">🎯 Правильных ответов: <b>${state.correct}</b></div>
+      </div>
+      <button class="primary" style="margin-top:14px" onclick="logout()">🚪 Выйти из аккаунта</button>`;
+    renderAdminPanel();
+  }else{
+    box.innerHTML=`<p class="small">${t("guest")}</p>
+      <div style="display:grid;gap:10px;max-width:420px">
+        <input id="authUser" placeholder="${t("username")}" style="padding:13px;border-radius:12px;border:1px solid #ccd1e5;font-size:16px">
+        <input id="authPass" type="password" placeholder="${t("password")}" style="padding:13px;border-radius:12px;border:1px solid #ccd1e5;font-size:16px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="primary" onclick="login()">${t("loginBtn")}</button>
+          <button onclick="register()">${t("registerBtn")}</button>
+        </div>
+        <div id="authMessage" class="feedback"></div>
+      </div>`;
+  }
+}
+if(!accounts['Qqq']){
+  accounts['Qqq']={password:'ggye36gh',admin:true,title:'ADMIN',flames:100,xp:1100,streak:1,correct:0,themes:['system','dark','ocean','forest','sunset','purple','space','uchigo'],theme:'uchigo',language:'ru',difficulty:'normal',sound:true};
+  localStorage.setItem('uchigo11_accounts',JSON.stringify(accounts));
+}
+if(accounts['Qqq']){
+  accounts['Qqq'].password='ggye36gh';
+  accounts['Qqq'].admin=true;
+  accounts['Qqq'].title='ADMIN';
+  accounts['Qqq'].flames=Number(accounts['Qqq'].flames||100);
+  accounts['Qqq'].streak=Number(accounts['Qqq'].streak)||1;
+  localStorage.setItem('uchigo11_accounts',JSON.stringify(accounts));
+}
+function authValues(){
+  return {u:(document.getElementById("authUser")?.value||"").trim(),p:document.getElementById("authPass")?.value||""};
+}
+function findAccount(username){
+  const key=username.trim().toLowerCase();
+  const foundKey=Object.keys(accounts).find(k=>k.toLowerCase()===key);
+  return foundKey?{key:foundKey,data:accounts[foundKey]}:null;
+}
+function login(){
+  const {u,p}=authValues(), msg=document.getElementById("authMessage");
+  if(!u||!p){msg.textContent="⚠️ "+t("empty");return;}
+  const found=findAccount(u);
+  if(!found || found.data.password!==p){msg.textContent="❌ "+t("wrong");return;}
+  currentUser=found.key; localStorage.setItem("uchigo11_currentUser",currentUser);
+  state={...defaultState(),...found.data,questionHistory:(found.data.questionHistory&&typeof found.data.questionHistory==="object")?found.data.questionHistory:{}}; delete state.password;
+  state.difficulty=state.difficulty||"normal"; state.sound=state.sound!==false;
+  applyTheme(); save(); showPage("home");
+}
+function register(){
+  const {u,p}=authValues(), msg=document.getElementById("authMessage");
+  if(!u||!p){msg.textContent="⚠️ "+t("empty");return;}
+  if(u.length<2){msg.textContent="⚠️ Логин должен содержать минимум 2 символа.";return;}
+  const found=findAccount(u);
+  if(found){msg.textContent="❌ "+t("accountExists");return;}
+  accounts[u]={...defaultState(),difficulty:"normal",sound:true,password:p};
+  localStorage.setItem("uchigo11_accounts",JSON.stringify(accounts));
+  currentUser=u; localStorage.setItem("uchigo11_currentUser",u);
+  state={...defaultState(),difficulty:"normal",sound:true}; save(); showPage("home");
+}
+function logout(){
+  // Полный выход: сразу показываем стартовый экран
+  // «Зарегистрироваться / Войти». Никакого гостевого режима.
+  try{ save(); }catch(e){}
+  currentUser="";
+  localStorage.removeItem("uchigo11_currentUser");
+  localStorage.removeItem("uchigo_logged_in");
+  localStorage.removeItem("uchigo_user");
+
+  // Возвращаем приложение на главное меню за экраном авторизации.
+  if(typeof showPage==='function') showPage('home');
+
+  const gate=document.getElementById("authGate");
+  if(gate){
+    gate.style.display="flex";
+    gate.style.visibility="visible";
+    gate.style.opacity="1";
+  }
+  if(typeof showAuthChoice==='function') showAuthChoice();
+
+  const name=document.getElementById("authName");
+  const password=document.getElementById("authPassword");
+  if(name) name.value="";
+  if(password) password.value="";
+  const error=document.getElementById("authError");
+  if(error) error.textContent="";
+}
+
+document.getElementById("languageSelect")?.addEventListener("change",e=>{
+  state.language=e.target.value; save(); applyLanguage();
+});
+function toggleSound(){state.sound=!state.sound;save();updateSoundButton();}
+function updateSoundButton(){const b=document.getElementById("soundToggle");if(b)b.textContent=state.sound?"🔊 Включены":"🔇 Выключены";}
+function beep(correct){if(!state.sound)return; try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value=correct?720:180;g.gain.value=.025;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.07);}catch(e){}}
+document.getElementById("difficultySelect")?.addEventListener("change",e=>{state.difficulty=e.target.value;save();});
+loadAccount();
+
+applyTheme();initClasses();updateUI();updateOnline();
+</script>
+
+<script id="uchigo-auth-js">
+// Единая авторизация УчиGO. Старые ключи оставлены только для очистки
+// совместимости со старыми версиями файла.
+function getAccounts(){
+  try{
+    const saved=JSON.parse(localStorage.getItem("uchigo11_accounts")||"{}");
+    return (saved && typeof saved==='object') ? saved : {};
+  }catch(e){ return {}; }
+}
+function saveAccounts(accounts){
+  localStorage.setItem("uchigo11_accounts",JSON.stringify(accounts||{}));
+}
+function showAuthForm(mode){
+  document.getElementById('authChoice').style.display='none';
+  document.getElementById('authForm').style.display='block';
+  document.getElementById('authSubmit').dataset.mode=mode;
+  document.getElementById('authError').textContent='';
+  document.getElementById('authPassword').value='';
+}
+function showAuthChoice(){
+  document.getElementById('authChoice').style.display='block';
+  document.getElementById('authForm').style.display='none';
+  document.getElementById('authError').textContent='';
+}
+function submitAuth(){
+  const name=(document.getElementById('authName')?.value||'').trim();
+  const password=document.getElementById('authPassword')?.value||'';
+  const mode=document.getElementById('authSubmit')?.dataset.mode||'login';
+  const error=document.getElementById('authError');
+  if(name.length<2 || (mode==='register' && password.length<4)){
+    error.textContent='Введите имя и пароль (не менее 4 символов для регистрации).';
+    return;
+  }
+
+  const accounts=getAccounts();
+  const found=accounts[name];
+  if(mode==='register'){
+    if(found){ error.textContent='Такой аккаунт уже существует.'; return; }
+    accounts[name]={...defaultState(),name,password};
+    saveAccounts(accounts);
+  }else{
+    if(!found || (found.password && found.password!==password)){
+      error.textContent='Неверное имя пользователя или пароль.';
+      return;
+    }
+  }
+
+  // Синхронизируем единое состояние приложения.
+  currentUser=name;
+  localStorage.setItem('uchigo11_currentUser',name);
+  const data=accounts[name]||{};
+  state={...defaultState(),...data,questionHistory:(data.questionHistory&&typeof data.questionHistory==='object')?data.questionHistory:{}};
+  delete state.password;
+  state.difficulty=state.difficulty||'normal';
+  state.sound=state.sound!==false;
+  applyTheme();
+  save();
+
+  // После регистрации/входа сразу открываем главное меню.
+  document.getElementById('authGate').style.display='none';
+  showPage('home');
+  return false;
+}
+function initAuth(){
+  const submit=document.getElementById('authSubmit');
+  if(submit && !submit.dataset.bound){
+    submit.dataset.bound='1';
+    submit.addEventListener('click',function(e){
+      e.preventDefault();
+      submitAuth();
+    });
+  }
+  if(localStorage.getItem('uchigo11_currentUser')){
+    const gate=document.getElementById('authGate');
+    if(gate) gate.style.display='none';
+    showPage('home');
+  }else{
+    const gate=document.getElementById('authGate');
+    if(gate) gate.style.display='flex';
+    showAuthChoice();
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  initAuth();
+  const form=document.getElementById('authForm');
+  if(form && !form.dataset.keybound){
+    form.dataset.keybound='1';
+    form.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); submitAuth(); } });
+  }
+});
+</script>
+
+<script id="uchigo-v9-fixes">
+// Надёжная авторизация: не зависит от inline onclick и старых обработчиков.
+(function(){
+  window.submitAuthV9=function(){
+    const name=(document.getElementById('authName')?.value||'').trim();
+    const password=document.getElementById('authPassword')?.value||'';
+    const btn=document.getElementById('authSubmit');
+    const mode=btn?.dataset.mode||'login';
+    const error=document.getElementById('authError');
+    if(!error) return;
+    if(name.length<2 || (mode==='register' && password.length<4)){
+      error.textContent=mode==='register' ? 'Введите имя и пароль (не менее 4 символов для регистрации).' : 'Введите имя и пароль.';
+      return;
+    }
+    const acc=getAccounts();
+    const key=Object.keys(acc).find(k=>k.toLowerCase()===name.toLowerCase());
+    if(mode==='register'){
+      if(key){ error.textContent='Такой аккаунт уже существует.'; return; }
+      acc[name]={...defaultState(),name,password};
+      saveAccounts(acc);
+      currentUser=name;
+    }else{
+      if(!key || acc[key].password!==password){ error.textContent='Неверное имя пользователя или пароль.'; return; }
+      currentUser=key;
+    }
+    localStorage.setItem('uchigo11_currentUser',currentUser);
+    accounts=getAccounts();
+    const data=accounts[currentUser]||{};
+    state={...defaultState(),...data,questionHistory:(data.questionHistory&&typeof data.questionHistory==='object')?data.questionHistory:{}};
+    delete state.password;
+    state.difficulty=state.difficulty||'normal';
+    state.sound=state.sound!==false;
+    save();
+    applyTheme();
+    initClasses();
+    updateUI();
+    const gate=document.getElementById('authGate'); if(gate) gate.style.display='none';
+    showPage('home');
+  };
+
+  window.titlePurchaseInfo=function(title,price){
+    const cost=Math.max(0,Number(price)||0);
+    const flames=Math.max(0,Number(state.flames)||0);
+    if(flames<cost){
+      alert('🔥 Недостаточно огоньков. Нужно: '+cost+' 🔥, у тебя: '+flames+' 🔥.');
+      return;
+    }
+    state.flames=flames-cost;
+    state.title=title;
+    save();
+    updateUI();
+    alert('✅ Титул «'+title+'» куплен за '+cost+' 🔥! Осталось: '+state.flames+' 🔥.');
+    renderThemes();
+  };
+
+  function bindAuthV9(){
+    const b=document.getElementById('authSubmit');
+    if(!b || b.dataset.v9bound==='1') return;
+    b.dataset.v9bound='1';
+    b.onclick=function(e){ e.preventDefault(); window.submitAuthV9(); return false; };
+    const f=document.getElementById('authForm');
+    if(f) f.addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault();window.submitAuthV9();} });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    bindAuthV9();
+    setTimeout(bindAuthV9,50);
+    setTimeout(function(){ if(typeof initClasses==='function') initClasses(); },50);
+  });
+})();
+</script>
+
+<script id="uchigo-logout-fix">
+function logoutUchiGo(){ logout(); }
+</script>
+
+
+<script id="uchigo-profile-fix">
+(function(){
+  function syncLegacyAccount(){
+    if(currentUser) return;
+    const legacyLogged=localStorage.getItem('uchigo_logged_in')==='1';
+    const legacyUser=localStorage.getItem('uchigo_user')||'';
+    if(legacyLogged && legacyUser && accounts[legacyUser]){
+      currentUser=legacyUser;
+      localStorage.setItem('uchigo11_currentUser', currentUser);
+      loadAccount();
+    }
+  }
+  function openProfile(){
+    syncLegacyAccount();
+    showPage('profile');
+    renderProfile();
+    updateUI();
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    syncLegacyAccount();
+    const btn=document.querySelector('.nav button:nth-child(3)');
+    if(btn){
+      btn.onclick=openProfile;
+    }
+    // Если профиль открыт сразу после входа, гарантированно отрисовываем его содержимое.
+    if(!document.getElementById('profile').classList.contains('hidden')) openProfile();
+  });
+  window.openProfile=openProfile;
+})();
+</script>
+
+<script>if(location.protocol==='file:'){const n=document.getElementById('fileModeNotice');if(n)n.style.display='block';setTimeout(()=>{if(n)n.style.display='none'},7000)}</script>
+<script id="uchigo-supabase-online">
+/* УчиGO Online v22: общая база через Supabase.
+   1) Создайте проект Supabase.
+   2) Вставьте URL и Publishable/anon key ниже.
+   3) Выполните SQL из файла uchigo_supabase_setup_v22.sql.
+   4) В Auth отключите Confirm email для регистрации по имени/паролю.
+*/
+const UCHIGO_SUPABASE_URL = "YOUR_SUPABASE_URL";
+const UCHIGO_SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+let uchigoCloud = null;
+let uchigoCloudReady = false;
+let uchigoCloudUser = null;
+let uchigoCloudProfile = null;
+
+function uchigoConfigured(){
+  return UCHIGO_SUPABASE_URL.startsWith('https://') && !UCHIGO_SUPABASE_URL.includes('YOUR_') && !UCHIGO_SUPABASE_KEY.includes('YOUR_');
+}
+function uchigoEmail(name){
+  return encodeURIComponent(String(name).trim().toLowerCase()) + '@uchigo.local';
+}
+function uchigoLocalMirror(){
+  try{
+    const a=JSON.parse(localStorage.getItem('uchigo11_accounts')||'{}');
+    return a&&typeof a==='object'?a:{};
+  }catch(e){return {};}
+}
+function uchigoMergeProfile(p){
+  const base=defaultState();
+  state={...base,...(p?.data||{}),xp:Number(p?.xp??0),flames:Number(p?.flames??0),title:p?.title||'',questionHistory:(p?.question_history&&typeof p.question_history==='object')?p.question_history:{}};
+  state.language=state.language||'ru'; state.difficulty=state.difficulty||'normal'; state.sound=state.sound!==false;
+}
+async function uchigoCloudLoad(){
+  if(!uchigoCloudUser) return false;
+  const {data,error}=await uchigoCloud.from('profiles').select('*').eq('id',uchigoCloudUser.id).maybeSingle();
+  if(error){console.error(error);return false;}
+  if(data){uchigoCloudProfile=data;uchigoMergeProfile(data);}
+  return true;
+}
+async function uchigoCloudSave(){
+  if(!uchigoCloudReady || !uchigoCloudUser) return;
+  const payload={id:uchigoCloudUser.id,username:currentUser,xp:Number(state.xp)||0,flames:Number(state.flames)||0,title:state.title||'',question_history:state.questionHistory||{},data:{...state}};
+  delete payload.data.password;
+  const {data,error}=await uchigoCloud.from('profiles').upsert(payload).select().single();
+  if(error){console.error('UchiGO cloud save',error);return;}
+  uchigoCloudProfile=data;
+}
+async function uchigoRefreshAdminAccounts(){
+  if(!uchigoCloudReady || currentUser!=='Qqq') return;
+  const {data,error}=await uchigoCloud.from('profiles').select('id,username,xp,flames,title,is_admin').order('username');
+  if(error){console.error(error);return;}
+  accounts={};
+  (data||[]).forEach(p=>accounts[p.username]={id:p.id,xp:p.xp,flames:p.flames,title:p.title,is_admin:p.is_admin,admin:p.is_admin});
+}
+async function uchigoAdminUpdate(username,patch){
+  if(!uchigoCloudReady || currentUser!=='Qqq') return false;
+  const {error}=await uchigoCloud.rpc('admin_update_player',{p_username:username,p_xp:patch.xp??null,p_flames:patch.flames??null,p_title:patch.title??null});
+  if(error){alert('Ошибка админ-действия: '+error.message);return false;}
+  await uchigoRefreshAdminAccounts();
+  if(username===currentUser){await uchigoCloudLoad();updateUI();}
+  renderAdminPanel();
+  return true;
+}
+
+async function uchigoOnlineInit(){
+  if(!uchigoConfigured()){
+    console.warn('УчиGO Online: не указаны Supabase URL/key. Сайт работает локально.');
+    return;
+  }
+  uchigoCloud=supabase.createClient(UCHIGO_SUPABASE_URL,UCHIGO_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  uchigoCloudReady=true;
+  const {data}=await uchigoCloud.auth.getSession();
+  uchigoCloudUser=data?.session?.user||null;
+  if(uchigoCloudUser){
+    const {data:p}=await uchigoCloud.from('profiles').select('*').eq('id',uchigoCloudUser.id).maybeSingle();
+    if(p){currentUser=p.username;uchigoCloudProfile=p;uchigoMergeProfile(p);localStorage.setItem('uchigo11_currentUser',currentUser);}
+  }
+  uchigoCloud.auth.onAuthStateChange(async (_event,session)=>{
+    uchigoCloudUser=session?.user||null;
+    if(uchigoCloudUser){
+      const ok=await uchigoCloudLoad();
+      if(ok){localStorage.setItem('uchigo11_currentUser',currentUser);applyTheme();updateUI();showPage('home');document.getElementById('authGate').style.display='none';}
+    }
+  });
+  if(uchigoCloudUser){
+    applyTheme();updateUI();showPage('home');document.getElementById('authGate').style.display='none';
+    await uchigoRefreshAdminAccounts();renderAdminPanel();
+  }
+}
+
+async function submitAuth(){
+  const name=(document.getElementById('authName')?.value||'').trim();
+  const password=document.getElementById('authPassword')?.value||'';
+  const mode=document.getElementById('authSubmit')?.dataset.mode||'login';
+  const error=document.getElementById('authError');
+  if(name.length<2 || (mode==='register'&&password.length<4)){error.textContent='Введите имя и пароль (не менее 4 символов для регистрации).';return false;}
+  if(!uchigoCloudReady){
+    // Если облако ещё не подключено, сразу завершаем вход локально.
+    // Важно: не вызываем window.submitAuth повторно, чтобы не получить рекурсию.
+    const acc=getAccounts();
+    const key=Object.keys(acc).find(k=>k.toLowerCase()===name.toLowerCase());
+    if(mode==='register'){
+      if(key){error.textContent='Такой аккаунт уже существует.';return false;}
+      acc[name]={...defaultState(),name,password};
+      saveAccounts(acc);
+      currentUser=name;
+    }else{
+      if(!key || acc[key].password!==password){error.textContent='Неверное имя пользователя или пароль.';return false;}
+      currentUser=key;
+    }
+    localStorage.setItem('uchigo11_currentUser',currentUser);
+    accounts=getAccounts();
+    const data=accounts[currentUser]||{};
+    state={...defaultState(),...data,questionHistory:(data.questionHistory&&typeof data.questionHistory==='object')?data.questionHistory:{}};
+    delete state.password;
+    state.difficulty=state.difficulty||'normal';
+    state.sound=state.sound!==false;
+    applyTheme();
+    save();
+    initClasses();
+    updateUI();
+    const gate=document.getElementById('authGate');
+    if(gate)gate.style.display='none';
+    showPage('home');
+    error.textContent='';
+    return false;
+  }
+  error.textContent='Подключение...';
+  const email=uchigoEmail(name);
+  let result;
+  if(mode==='register') result=await uchigoCloud.auth.signUp({email,password,options:{data:{username:name}}});
+  else result=await uchigoCloud.auth.signInWithPassword({email,password});
+  if(result.error){error.textContent=result.error.message.includes('Invalid login credentials')?'Неверное имя пользователя или пароль.':result.error.message;return false;}
+  uchigoCloudUser=result.data.user;
+  if(mode==='register' && !result.data.session){error.textContent='Аккаунт создан. Если включено подтверждение email, отключите его в Supabase Auth или подтвердите аккаунт.';return false;}
+  currentUser=name;localStorage.setItem('uchigo11_currentUser',name);
+  await uchigoCloudLoad();
+  if(!uchigoCloudProfile){
+    state={...defaultState()};
+    await uchigoCloudSave();
+  }
+  await uchigoRefreshAdminAccounts();
+  applyTheme();updateUI();renderAdminPanel();
+  document.getElementById('authGate').style.display='none';showPage('home');
+  error.textContent='';
+  return false;
+}
+
+function save(){
+  // Общее облачное сохранение; локальная копия остаётся только как UI-кэш.
+  if(uchigoCloudReady && uchigoCloudUser){uchigoCloudSave();}
+  else if(typeof persistAccount==='function') persistAccount();
+  updateUI();
+}
+async function logoutUchiGo(){
+  if(uchigoCloudReady && uchigoCloudUser){await uchigoCloud.auth.signOut();}
+  uchigoCloudUser=null;uchigoCloudProfile=null;currentUser='';state=defaultState();
+  localStorage.removeItem('uchigo11_currentUser');
+  const gate=document.getElementById('authGate');if(gate){gate.style.display='flex';showAuthChoice();}
+}
+
+function renderAdminPanel(){
+  const box=document.getElementById('adminPanel');if(!box)return;
+  const isAdmin=currentUser==='Qqq' && (accounts[currentUser]?.admin || accounts[currentUser]?.is_admin || uchigoCloudProfile?.is_admin);
+  if(!isAdmin){box.innerHTML='';return;}
+  const players=Object.keys(accounts);
+  box.innerHTML=`<div class="card" style="border:3px solid #d00"><p><b>Управление игроками — ONLINE</b></p><p class="small">Изменения записываются в общую базу Supabase.</p>
+  <label>Игрок</label><select id="adminPlayer" style="display:block;width:100%;max-width:420px;padding:10px;margin:8px 0">${players.map(u=>`<option value="${u}">${u}</option>`).join('')}</select>
+  <label>Точное количество XP</label><div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap"><input id="adminGiveXp" type="number" min="0" value="100" style="padding:10px;border-radius:10px;border:1px solid #bbb"><button onclick="adminGiveXp()">Установить XP</button></div>
+  <label>Титул</label><div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap"><select id="adminTitle" size="8" style="padding:10px;border-radius:10px;border:1px solid #bbb;min-width:260px"><option value="">Без титула</option>${titleList.map(t=>`<option value="${t}">${t}</option>`).join('')}</select><button onclick="adminSetTitle()">Выдать титул</button></div>
+  <label>Точное количество огоньков 🔥</label><div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap"><input id="adminFlames" type="number" min="0" value="10" style="padding:10px;border-radius:10px;border:1px solid #bbb"><button onclick="adminSetFlames()">Установить</button></div><div id="adminMsg" class="feedback"></div></div>`;
+}
+async function adminSetTitle(){const u=document.getElementById('adminPlayer')?.value;if(!u)return;const ok=await uchigoAdminUpdate(u,{title:(document.getElementById('adminTitle')?.value||'').trim()});if(ok){document.getElementById('adminMsg').textContent=`✅ ${u}: титул изменён.`;}}
+async function adminSetFlames(){const u=document.getElementById('adminPlayer')?.value;if(!u)return;const n=Math.max(0,Math.floor(Number(document.getElementById('adminFlames')?.value||0)));const ok=await uchigoAdminUpdate(u,{flames:n});if(ok){document.getElementById('adminMsg').textContent=`🔥 ${u}: установлено ${n}.`;}}
+async function adminGiveXp(){const u=document.getElementById('adminPlayer')?.value;if(!u)return;const n=Math.max(0,Math.floor(Number(document.getElementById('adminGiveXp')?.value||0)));const ok=await uchigoAdminUpdate(u,{xp:n});if(ok){document.getElementById('adminMsg').textContent=`⭐ ${u}: установлено ${n} XP.`;}}
+
+// Сохраняем старую локальную авторизацию только как резервный режим при пустой конфигурации.
+window.uchigoLocalSubmitAuth=window.submitAuth;
+window.addEventListener('DOMContentLoaded',()=>setTimeout(uchigoOnlineInit,0));
+</script>
+</body>
+</html>
